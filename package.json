@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-jsx-if-directive",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
   "keywords": ["JSX", "React", "directive", "if"],
   "author": "HuQingyang <i@do.codes>",
