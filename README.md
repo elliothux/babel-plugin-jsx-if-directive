@@ -45,7 +45,7 @@ class App extends React.Component {
 
     render() { return (
         <div>
-            <h1 if={this.state.age % 2 === 0}>I'm {age} year's old.</h1>
+            <h1 if={this.state.age % 2 === 0}>I'm {this.state.age} year's old.</h1>
             <input
                 type="number"
                 placeholder="Age"
@@ -88,7 +88,7 @@ class App extends React.Component {
 
     render() { return (
         <div>
-            <h1 r-if={this.state.age % 2 === 0}>I'm {age} year's old.</h1>
+            <h1 r-if={this.state.age % 2 === 0}>I'm {this.state.age} year's old.</h1>
             <input
                 type="number"
                 placeholder="Age"
