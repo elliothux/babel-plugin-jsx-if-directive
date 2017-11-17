@@ -13,7 +13,7 @@ module.exports = function ({types: t}) {
                 t.conditionalExpression(
                     ifBinding.value.expression,
                     path.node,
-                    t.stringLiteral('')
+                    t.nullLiteral()
                 )
             )
         }
