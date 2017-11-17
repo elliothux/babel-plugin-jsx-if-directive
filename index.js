@@ -20,7 +20,7 @@ module.exports = function ({types: t}) {
 
         function getAndRemoveIfBinding(openingElement) {
             if (openingElement.type !== 'JSXOpeningElement') return;
-            const index = openingElement.attributes.findIndex(attr => attr.name.name === attrName);
+            const index = openingElement.attributes.findIndex(attr => attr.name && attr.name.name === attrName);
             if (index >= 0) {
                 const ifBinding = openingElement.attributes[index];
                 openingElement.attributes = openingElement.attributes.filter(attr => attr !== ifBinding);
