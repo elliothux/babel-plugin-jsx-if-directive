@@ -9,13 +9,13 @@ module.exports = function ({types: t}) {
 
         const ifBinding = getAndRemoveIfBinding(path.node.openingElement);
         if (ifBinding) {
-            path.replaceWith(t.jSXExpressionContainer(
+            path.replaceWith(
                 t.conditionalExpression(
                     ifBinding.value.expression,
                     path.node,
                     t.stringLiteral('')
                 )
-            ))
+            )
         }
 
         function getAndRemoveIfBinding(openingElement) {
