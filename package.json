@@ -1,8 +1,13 @@
 {
   "name": "babel-plugin-jsx-if-directive",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "index.js",
   "keywords": ["JSX", "React", "directive", "if"],
   "author": "HuQingyang <i@do.codes>",
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://github.com/HuQingyang/babel-plugin-jsx-if-directive",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HuQingyang/babel-plugin-jsx-if-directive"
+  }
 }
