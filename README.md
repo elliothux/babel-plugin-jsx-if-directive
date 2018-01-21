@@ -45,7 +45,9 @@ class App extends React.Component {
 
     render() { return (
         <div>
-            <h1 if={this.state.age % 2 === 0}>I'm {this.state.age} year's old.</h1>
+            <p>Hi, I'm {this.state.age} year's old.</p>
+            <p if={this.state.age % 2 === 0}>And it's an even number!</p>
+            <p else>And it's an odd number!</p>
             <input
                 type="number"
                 placeholder="Age"
@@ -63,7 +65,8 @@ Edit your __.babelrc__ file:
   "plugins": [
     "jsx-if-directive", 
     { 
-      "attrName": "r-if" 
+      "ifAttrName": "r-if",
+      "elseAttrName": "r-else"
     }
   ]
 }
@@ -88,7 +91,9 @@ class App extends React.Component {
 
     render() { return (
         <div>
-            <h1 r-if={this.state.age % 2 === 0}>I'm {this.state.age} year's old.</h1>
+            <p>Hi, I'm {this.state.age} year's old.</p>
+            <p r-if={this.state.age % 2 === 0}>And it's an even number!</p>
+            <p r-else>And it's an odd number!</p>
             <input
                 type="number"
                 placeholder="Age"
