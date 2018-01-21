@@ -110,3 +110,9 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+.idea/babel-plugin-jsx-if-directive.iml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/watcherTasks.xml
