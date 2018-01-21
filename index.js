@@ -24,9 +24,11 @@ module.exports = function ({types: t}) {
         }
 
         function getAndRemoveAlertnateAst(node) {
+            if (!node) return t.nullLiteral();
             const elseBinding = getAttrAST(node.openingElement, 'else');
             if (elseBinding) return node;
 
+            // TODO: Supporting "elseIf" expression
             // const elseIfBinding = getAttrAST(node.openingElement, 'elif', false);
             // if (elseIfBinding) {
             //     console.log(elseIfBinding);
