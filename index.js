@@ -1,13 +1,15 @@
 
 module.exports = function ({types: t}) {
-    let attrName = 'if';
+    let ifAttrName = 'if';
+    let elseAttrName = 'else';
 
     function JSXElementVisitor(path) {
-        attrName = this.opts && this.opts.attrName || attrName;
+        ifAttrName = this.opts && this.opts.ifAttrName || ifAttrName;
+        elseAttrName = this.opts && this.opts.elseAttrName || elseAttrName;
 
         path.traverse({ JSXElement: JSXElementVisitor });
 
-        const ifBinding = getAttrAST(path.node.openingElement, 'if');
+        const ifBinding = getAttrAST(path.node.openingElement, ifAttrName);
         if (ifBinding) {
             const nextNode = findNextNode(path, path.parent.children, path.key);
             let alertnateAst = getAndRemoveAlertnateAst(nextNode);
@@ -25,7 +27,7 @@ module.exports = function ({types: t}) {
 
         function getAndRemoveAlertnateAst(node) {
             if (!node) return t.nullLiteral();
-            const elseBinding = getAttrAST(node.openingElement, 'else');
+            const elseBinding = getAttrAST(node.openingElement, elseAttrName);
             if (elseBinding) return node;
 
             // TODO: Supporting "elseIf" expression
