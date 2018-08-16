@@ -1,63 +1,83 @@
 
-module.exports = function ({types: t}) {
-    let ifAttrName = 'if';
-    let elseAttrName = 'else';
+const t = require('@babel/types');
+const {
+    getAttrASTAndIndexByName,
+    removeAttrASTByIndex,
+    findNextNode
+} = require('./utils');
 
+
+
+
+module.exports = function () {
     function JSXElementVisitor(path) {
-        ifAttrName = this.opts && this.opts.ifAttrName || ifAttrName;
-        elseAttrName = this.opts && this.opts.elseAttrName || elseAttrName;
+        const {
+            ifAttrName,
+            elseAttrName,
+            elseIfAttrName
+        } = getAttrNamesFromOption();
 
-        path.traverse({ JSXElement: JSXElementVisitor });
+        // path.traverse({ JSXElement: JSXElementVisitor });
 
-        const ifBinding = getAttrAST(path.node.openingElement, ifAttrName);
-        if (ifBinding) {
-            const nextNode = findNextNode(path, path.parent.children, path.key);
-            let alertnateAst = getAndRemoveAlertnateAst(nextNode);
-            if (alertnateAst.type !== 'NullLiteral')
-                path.parent.children = path.parent.children.filter(node => node !== nextNode);
+        const ifBinding = getAttrASTAndIndexByName(path.node.openingElement, ifAttrName);
+        if (!ifBinding) return;
 
-            path.replaceWith(
-                t.conditionalExpression(
-                    ifBinding.value.expression,
-                    path.node,
-                    alertnateAst
-                )
+        let {
+            parent: { children: siblings },
+            key: index
+        } = path;
+
+        let nextNode = findNextNode(path, siblings, index);
+        if (nextNode) {
+            let elseBinding = getAttrASTAndIndexByName(nextNode.openingElement, elseAttrName);
+            const elseIfBindings = [];
+
+            if (!elseBinding) {
+                let elseIfBinding = getAttrASTAndIndexByName(nextNode.openingElement, elseIfAttrName);
+                while (elseIfBinding) {
+                    elseIfBindings.push(elseIfBinding);
+                    index += 1;
+                    nextNode = findNextNode(path, siblings, index);
+                    elseIfBinding = nextNode ?
+                        getAttrASTAndIndexByName(nextNode.openingElement, elseIfAttrName) :
+                        null;
+                }
+                if (nextNode) {
+                    elseBinding = getAttrASTAndIndexByName(nextNode.openingElement, elseAttrName);
+                }
+            }
+
+            console.log(
+                '\n\n-------else--------\n\n',
+                elseBinding,
+                '\n\n-------elif--------\n\n',
+                elseIfBindings
             );
+            //
+            // let alertnateAst = getAndRemoveAlertnateAst(nextNode);
+            // if (alertnateAst.type !== 'NullLiteral')
+            //     path.parent.children = path.parent.children.filter(node => node !== nextNode);
+            //
+            // path.replaceWith(
+            //     t.conditionalExpression(
+            //         ifBinding.value.expression,
+            //         path.node,
+            //         alertnateAst
+            //     )
+            // );
         }
 
-        function getAndRemoveAlertnateAst(node) {
-            if (!node) return t.nullLiteral();
-            const elseBinding = getAttrAST(node.openingElement, elseAttrName);
-            if (elseBinding) return node;
-
-            // TODO: Supporting "elseIf" expression
-            // const elseIfBinding = getAttrAST(node.openingElement, 'elif', false);
-            // if (elseIfBinding) {
-            //     console.log(elseIfBinding);
-            //     return node;
-            // }
-
-            return t.nullLiteral();
-        }
-
-        function findNextNode(path, sibling, key) {
-            if (!sibling) return null;
-            const nextPath = sibling[key + 1];
-            if (!nextPath) return null;
-            if (nextPath.type === 'JSXText' && !nextPath.value.trim())
-                return findNextNode(nextPath, sibling, key+1);
-            return nextPath.type === 'JSXElement' ? nextPath : null;
-        }
-
-        function getAttrAST(openingElement, attrName, willRemove=true) {
-            if (openingElement.type !== 'JSXOpeningElement') return null;
-            const index = openingElement.attributes.findIndex(attr => attr.name && attr.name.name === attrName);
-            if (index < 0) return null;
-
-            const attrBinding = openingElement.attributes[index];
-            if (willRemove)
-                openingElement.attributes = openingElement.attributes.filter(attr => attr !== attrBinding);
-            return attrBinding;
+        function getAttrNamesFromOption() {
+            const {
+                ifAttrName: optIfAttrName,
+                elseAttrName: optElseAttrName,
+                elseIfAttrName: optElseIfAttrName
+            } = this.opts || {};
+            return {
+                ifAttrName: optIfAttrName || 'if',
+                elseAttrName: optElseAttrName || 'else',
+                elseIfAttrName: optElseIfAttrName || 'elseIf',
+            }
         }
     }
 
@@ -67,3 +87,13 @@ module.exports = function ({types: t}) {
         }
     }
 };
+
+
+function _findNextNode(path, sibling, key) {
+    if (!sibling) return null;
+    const nextPath = sibling[key + 1];
+    if (!nextPath) return null;
+    if (nextPath.type === 'JSXText' && !nextPath.value.trim())
+        return findNextNode(nextPath, sibling, key+1);
+    return nextPath.type === 'JSXElement' ? nextPath : null;
+}
