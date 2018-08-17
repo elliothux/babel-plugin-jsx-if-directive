@@ -1,12 +1,12 @@
 
-const t = require('@babel/types');
 const {
     getAttrASTAndIndexByName,
-    removeAttrASTByIndex,
-    findNextNode
+    findNextNode,
+    transformIfBinding,
+    transformElseBinding,
+    transformElseIfBindings,
+    removeNode
 } = require('./utils');
-
-
 
 
 module.exports = function () {
@@ -17,9 +17,7 @@ module.exports = function () {
             elseIfAttrName
         } = getAttrNamesFromOption();
 
-        // path.traverse({ JSXElement: JSXElementVisitor });
-
-        const ifBinding = getAttrASTAndIndexByName(path.node.openingElement, ifAttrName);
+        const ifBinding = getAttrASTAndIndexByName(path.node, ifAttrName);
         if (!ifBinding) return;
 
         let {
@@ -28,43 +26,38 @@ module.exports = function () {
         } = path;
 
         let nextNode = findNextNode(path, siblings, index);
-        if (nextNode) {
-            let elseBinding = getAttrASTAndIndexByName(nextNode.openingElement, elseAttrName);
-            const elseIfBindings = [];
+        if (!nextNode) return transformIfBinding(path, ifBinding);
 
-            if (!elseBinding) {
-                let elseIfBinding = getAttrASTAndIndexByName(nextNode.openingElement, elseIfAttrName);
-                while (elseIfBinding) {
-                    elseIfBindings.push(elseIfBinding);
-                    index += 1;
-                    nextNode = findNextNode(path, siblings, index);
-                    elseIfBinding = nextNode ?
-                        getAttrASTAndIndexByName(nextNode.openingElement, elseIfAttrName) :
-                        null;
-                }
-                if (nextNode) {
-                    elseBinding = getAttrASTAndIndexByName(nextNode.openingElement, elseAttrName);
-                }
+        let elseBinding = getAttrASTAndIndexByName(nextNode, elseAttrName);
+        const elseIfBindings = [];
+
+        if (!elseBinding) {
+            let elseIfBinding = getAttrASTAndIndexByName(nextNode, elseIfAttrName);
+            while (elseIfBinding) {
+                elseIfBindings.push(elseIfBinding);
+                index += 1;
+                nextNode = findNextNode(path, siblings, index);
+                elseIfBinding = nextNode ?
+                    getAttrASTAndIndexByName(nextNode, elseIfAttrName) :
+                    null;
             }
+            if (nextNode) {
+                elseBinding = getAttrASTAndIndexByName(nextNode, elseAttrName);
+            }
+        }
 
-            console.log(
-                '\n\n-------else--------\n\n',
-                elseBinding,
-                '\n\n-------elif--------\n\n',
-                elseIfBindings
-            );
-            //
-            // let alertnateAst = getAndRemoveAlertnateAst(nextNode);
-            // if (alertnateAst.type !== 'NullLiteral')
-            //     path.parent.children = path.parent.children.filter(node => node !== nextNode);
-            //
-            // path.replaceWith(
-            //     t.conditionalExpression(
-            //         ifBinding.value.expression,
-            //         path.node,
-            //         alertnateAst
-            //     )
-            // );
+        if (elseIfBindings.length > 0) {
+            transformElseIfBindings(path, ifBinding, elseIfBindings, elseBinding);
+
+            elseIfBindings.forEach((binding) => {
+                removeNode(siblings, binding.node);
+            });
+            if (elseBinding) {
+                removeNode(siblings, elseBinding.node);
+            }
+        } else {
+            transformElseBinding(path, ifBinding, elseBinding);
+            removeNode(siblings, elseBinding.node);
         }
 
         function getAttrNamesFromOption() {
@@ -87,13 +80,3 @@ module.exports = function () {
         }
     }
 };
-
-
-function _findNextNode(path, sibling, key) {
-    if (!sibling) return null;
-    const nextPath = sibling[key + 1];
-    if (!nextPath) return null;
-    if (nextPath.type === 'JSXText' && !nextPath.value.trim())
-        return findNextNode(nextPath, sibling, key+1);
-    return nextPath.type === 'JSXElement' ? nextPath : null;
-}
