@@ -28,33 +28,33 @@ Edit your __.babelrc__ file:
 ```
 In your jsx file:
 ```jsx harmony
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.ageChangeHandler = this.ageChangeHandler.bind(this);
-        this.state = {
-            age: 21
-        }
-    }
-    
-    ageChangeHandler(e) {
-        this.setState({
-            age: e.target.value
-        })
+class App extends Component {
+    constructor() {
+        super();
     }
 
-    render() { return (
-        <div>
-            <p>Hi, I'm {this.state.age} year's old.</p>
-            <p if={this.state.age % 2 === 0}>And it's an even number!</p>
-            <p else>And it's an odd number!</p>
-            <input
-                type="number"
-                placeholder="Age"
-                onChange={this.ageChangeHandler}
-            />
-        </div>
-    )}
+    state = {
+        age: 0
+    }
+
+    plus = () => {
+        const { state: { age } } = this;
+        this.setState({ age: age + 10 });
+    }
+
+    render() {
+        const { age } = this.state;
+        return (
+            <div>
+                <button onClick={this.plus}>+</button>
+                <h1 if={age < 18}>You are child.</h1>
+                <h1 elseIf={age < 40}>You are youth.</h1>
+                <h1 elseIf={age < 60}>You are middle-aged.</h1>
+                <h1 else>You are old man.</h1>
+                <p>You are {age} years old</p>
+            </div>
+        )
+    }
 }
 ```
 
@@ -66,7 +66,8 @@ Edit your __.babelrc__ file:
     "jsx-if-directive", 
     { 
       "ifAttrName": "r-if",
-      "elseAttrName": "r-else"
+      "elseAttrName": "r-else",
+      "elseIfAttrName": "r-elif"
     }
   ]
 }
@@ -74,32 +75,32 @@ Edit your __.babelrc__ file:
 
 In your jsx file:
 ```jsx harmony
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.ageChangeHandler = this.ageChangeHandler.bind(this);
-        this.state = {
-            age: 21
-        }
-    }
-    
-    ageChangeHandler(e) {
-        this.setState({
-            age: e.target.value
-        })
+class App extends Component {
+    constructor() {
+        super();
     }
 
-    render() { return (
-        <div>
-            <p>Hi, I'm {this.state.age} year's old.</p>
-            <p r-if={this.state.age % 2 === 0}>And it's an even number!</p>
-            <p r-else>And it's an odd number!</p>
-            <input
-                type="number"
-                placeholder="Age"
-                onChange={this.ageChangeHandler}
-            />
-        </div>
-    )}
+    state = {
+        age: 0
+    }
+
+    plus = () => {
+        const { state: { age } } = this;
+        this.setState({ age: age + 10 });
+    }
+
+    render() {
+        const { age } = this.state;
+        return (
+            <div>
+                <button onClick={this.plus}>+</button>
+                <h1 r-if={age < 18}>You are child.</h1>
+                <h1 r-elif={age < 40}>You are youth.</h1>
+                <h1 r-elif={age < 60}>You are middle-aged.</h1>
+                <h1 r-else>You are old man.</h1>
+                <p>You are {age} years old</p>
+            </div>
+        )
+    }
 }
 ```
