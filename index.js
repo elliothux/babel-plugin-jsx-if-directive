@@ -1,11 +1,11 @@
 
 const {
-    getAttrASTAndIndexByName,
+    removeNode,
     findNextNode,
     transformIfBinding,
     transformElseBinding,
     transformElseIfBindings,
-    removeNode
+    getAttrASTAndIndexByName
 } = require('./utils');
 
 
@@ -55,7 +55,7 @@ module.exports = function () {
             if (elseBinding) {
                 removeNode(siblings, elseBinding.node);
             }
-        } else {
+        } else if (elseBinding) {
             transformElseBinding(path, ifBinding, elseBinding);
             removeNode(siblings, elseBinding.node);
         }
